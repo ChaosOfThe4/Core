@@ -4,7 +4,9 @@ class ACVars:
     LocalP = '0x10F4F4'
     LocalWp = '0x290A708'
     Armor = '0xFC'
-    Grenades = '0x40'
+    Grenades = '0x158'
+    xview = '0x40'
+    yview = '0x44'
     PAmmo = '0x150'
     SAmmo = '0x13C'
     modules = ["ac_client.exe"]
