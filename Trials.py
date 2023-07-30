@@ -151,6 +151,16 @@ def AC_Client():
             print(int.from_bytes(Grenades, "little"))
 
             process_Main.memory.write(int.from_bytes(local_Player, "little") + unhex(ACVars.Grenades), bytes_val1)#writing to memory
+
+
+            ###SPEEDHACK###
+            new_speed = 2.0
+            Speed = process_Main.memory.read(int.from_bytes(local_Player, "little") + unhex(ACVars.direction), 0x04)
+            print(int.from_bytes(Speed, "little"))
+
+            if any(ACVars.movement) == Speed:
+                new_speed = Speed * new_speed
+                process_Main.memory.write(int.from_bytes(local_Player, "little") + unhex(ACVars.direction), new_speed)#writing to memory
      
             time.sleep(0.05)
         except KeyboardInterrupt:
