@@ -6,6 +6,7 @@ import keyboard
 import memprocfs
 import threading 
 import tkinter as tk
+from tkinter import *
 
 from Helper import (
     ACVars, CSVars, TFVars,
@@ -72,109 +73,118 @@ def print_menu():
                 print("\t" + each + ":" + str(base[each]))
     return vmm, process_Main"""
 
+class AC_Client:
+    def __init__(self, integer_val, integer_val1, bytes_val, bytes_val1):#, age):
+        #self.inUse = boolean
+        self.integer_val = 1100000000 #int
+        self.integer_val1 = 999 #int
+        self.bytes_val = self.integer_val.to_bytes(4, 'little') #int to proper bytes for memory
+        self.bytes_val1 = self.integer_val1.to_bytes(4, 'little') #int to proper bytes for memory
+        #self.age = age
+    
+    def Innit():   
+        base = {}
 
-def AC_Client():   
-    base = {}
+        vmm = memprocfs.Vmm(['-device', 'fpga'])
+        process_Main = vmm.process("ac_client.exe")
 
-    vmm = memprocfs.Vmm(['-device', 'fpga'])
-    process_Main = vmm.process("ac_client.exe")
+        print("\n(-----------------------------------)\n")
+        print("Initializing DMA connection...\n")
+        if vmm:
+            print("DMA connected!...\n")
+            print("Collecting process id of ac_client.exe")
 
-    print("\n(-----------------------------------)\n")
-    print("Initializing DMA connection...\n")
-    if vmm:
-        print("DMA connected!...\n")
-        print("Collecting process id of ac_client.exe")
+            if process_Main:
 
-        if process_Main:
-
-            print("Got process id: " + str(process_Main))
-            for each in ACVars.modules:
-                print("Collecting modules: ")
+                print("Got process id: " + str(process_Main))
+                for each in ACVars.modules:
+                    print("Collecting modules: ")
             
-                trial  = process_Main.module(each)
-                base[each] = trial.base
+                    trial  = process_Main.module(each)
+                    base[each] = trial.base
 
-                print("\t" + each + ":" + str(base[each]))
+                    print("\t" + each + ":" + str(base[each]))
+        
+        local_Player = process_Main.memory.read(base["ac_client.exe"] + unhex(ACVars.LocalP), 0x04)# +  unhex(ACVars.healthO), 0x04)
+        return local_Player
 
-    while True:
-        try:
-
-
-            ###LOCAL PLAYER OBJECT###
-
-            local_Player = process_Main.memory.read(base["ac_client.exe"] + unhex(ACVars.LocalP), 0x04)# +  unhex(ACVars.healthO), 0x04)
-
-
-
+    def infHealth(self):
+        while True:
+            try:
             ###LOCAL PLAYER HEALTH###
+                ##READ##
+                local_Player1 = process_Main.memory.read(int.from_bytes(self.local_Player, "little") + unhex(ACVars.healthP), 0x04)
+                print(int.from_bytes(local_Player1, "little"))
 
-            ##READ##
-            local_Player1 = process_Main.memory.read(int.from_bytes(local_Player, "little") + unhex(ACVars.healthP), 0x04)
-            #print(int.from_bytes(local_Player1, "little"))
+                ##WRITE##
+                
+                process_Main.memory.write(int.from_bytes(self.local_Player, "little") + unhex(ACVars.healthP), self.bytes_val)#writing to memory
+            except KeyboardInterrupt:
+                sys.exit("Bye")
+            except UnicodeDecodeError:
+                pass
 
-            ##WRITE##
-            integer_val = 1100000000 #int
-            bytes_val = integer_val.to_bytes(4, 'little') #int to proper bytes for memory
-            process_Main.memory.write(int.from_bytes(local_Player, "little") + unhex(ACVars.healthP), bytes_val)#writing to memory
+    def infAmmo(self):
+        while True:
+            try:
+                ###PRIMARY WEAPON AMMO###
+                Ammo = process_Main.memory.read(int.from_bytes(self.local_Player, "little") + unhex(ACVars.PAmmo), 0x04)
+                print(int.from_bytes(Ammo, "little"))
 
-
-            ###PRIMARY WEAPON AMMO###
-            Ammo = process_Main.memory.read(int.from_bytes(local_Player, "little") + unhex(ACVars.PAmmo), 0x04)
-            #print(int.from_bytes(Ammo, "little"))
-
-            integer_val1 = 999 #int
-            bytes_val1 = integer_val1.to_bytes(4, 'little') #int to proper bytes for memory
-            process_Main.memory.write(int.from_bytes(local_Player, "little") + unhex(ACVars.PAmmo), bytes_val1)#writing to memory
-
-
-
-            ###SECONDAY WEAPON AMMO###
-            SAmmo = process_Main.memory.read(int.from_bytes(local_Player, "little") + unhex(ACVars.SAmmo), 0x04)
-            #print(int.from_bytes(SAmmo, "little"))
-
-            process_Main.memory.write(int.from_bytes(local_Player, "little") + unhex(ACVars.SAmmo), bytes_val1)#writing to memory
+                bytes_val1 = self.integer_val1.to_bytes(4, 'little') #int to proper bytes for memory
+                process_Main.memory.write(int.from_bytes(self.local_Player, "little") + unhex(ACVars.PAmmo), bytes_val1)#writing to memory
 
 
+                ###SECONDAY WEAPON AMMO###
+                SAmmo = process_Main.memory.read(int.from_bytes(self.local_Player, "little") + unhex(ACVars.SAmmo), 0x04)
+                print(int.from_bytes(SAmmo, "little"))
+
+                process_Main.memory.write(int.from_bytes(self.local_Player, "little") + unhex(ACVars.SAmmo), bytes_val1)#writing to memory
+            except KeyboardInterrupt:
+                sys.exit("Bye")
+            except UnicodeDecodeError:
+                pass
+
+    def infArmor(self):
+        while True:
+            try:
+                ###ARMOR###
+                Armor = process_Main.memory.read(int.from_bytes(self.local_Player, "little") + unhex(ACVars.Armor), 0x04)
+                print(int.from_bytes(Armor, "little"))
+
+                process_Main.memory.write(int.from_bytes(self.local_Player, "little") + unhex(ACVars.Armor), self.bytes_val1)#writing to memory
+            except KeyboardInterrupt:
+                sys.exit("Bye")
+            except UnicodeDecodeError:
+                pass
+
+    def infGrenades(self):
+        while True:
+            try:
+
+                ###GRENADES###
+                Grenades = process_Main.memory.read(int.from_bytes(self.local_Player, "little") + unhex(ACVars.Grenades), 0x04)
+                print(int.from_bytes(Grenades, "little"))
+
+                process_Main.memory.write(int.from_bytes(self.local_Player, "little") + unhex(ACVars.Grenades), self.bytes_val1)#writing to memory
 
 
-            ###ARMOR###
+                ###SPEEDHACK###
+                new_speed = 2.0
+                Speed = process_Main.memory.read(int.from_bytes(self.local_Player, "little") + unhex(ACVars.direction), 0x04)
+                print(int.from_bytes(Speed, "little"))
 
-            Armor = process_Main.memory.read(int.from_bytes(local_Player, "little") + unhex(ACVars.Armor), 0x04)
-            #print(int.from_bytes(Armor, "little"))
-
-            process_Main.memory.write(int.from_bytes(local_Player, "little") + unhex(ACVars.Armor), bytes_val1)#writing to memory
-
-
-
-            ###GRENADES###
-            Grenades = process_Main.memory.read(int.from_bytes(local_Player, "little") + unhex(ACVars.Grenades), 0x04)
-            #print(int.from_bytes(Grenades, "little"))
-
-            process_Main.memory.write(int.from_bytes(local_Player, "little") + unhex(ACVars.Grenades), bytes_val1)#writing to memory
-
-
-            ###SPEEDHACK###
-            Speed = process_Main.memory.read(int.from_bytes(local_Player, "little") + unhex(ACVars.direction), 0x04)
-            print(int.from_bytes(Speed, "little"))
-
-            #for x in ACVars.movement:
-
-                #if x == int.from_bytes(Speed, "little") and x != :
-            if int.from_bytes(Speed, "little") == 1:
-                new_speed = int((int.from_bytes(Speed, "little") * 2.5))
-                print(new_speed)
-                new_speed = new_speed.to_bytes(4, 'little')
-                process_Main.memory.write(int.from_bytes(local_Player, "little") + unhex(ACVars.direction), new_speed)#writing to memory
-            Speed = process_Main.memory.read(int.from_bytes(local_Player, "little") + unhex(ACVars.direction), 0x04)
-            print(int.from_bytes(Speed, "little"))
+                if any(ACVars.movement) == Speed:
+                    new_speed = Speed * new_speed
+                    process_Main.memory.write(int.from_bytes(self.local_Player, "little") + unhex(ACVars.direction), new_speed)#writing to memory
      
-            time.sleep(0.05)
-        except KeyboardInterrupt:
-            sys.exit("Bye")
-        except UnicodeDecodeError:
-            pass
+                time.sleep(0.05)
+            except KeyboardInterrupt:
+                sys.exit("Bye")
+            except UnicodeDecodeError:
+                pass
 
-        time.sleep(.05)
+            time.sleep(.05)
 
 def timet():
     return time.perf_counter_ns()
@@ -309,11 +319,12 @@ def SoTF_Client():
         time.sleep(.05)
      
 window = tk.Tk()
-
+window.title("Synapse Software")
+"""MAIN//"""
 window.rowconfigure(0, minsize=50, weight=1)
 window.columnconfigure([0, 1, 2], minsize=50, weight=1)
 
-btn_AC = tk.Button(master=window, text="Assault Cube", command=AC_Client)
+btn_AC = tk.Button(master=window, text="Assault Cube", command=lambda:my_open())
 btn_AC.grid(row=0, column=0, sticky="nsew")
 
 btn_decrease = tk.Button(master=window, text="CS:GO", command=CSGO_Client)
@@ -321,6 +332,21 @@ btn_decrease.grid(row=0, column=1, sticky="nsew")
 
 btn_TF = tk.Button(master=window, text="SoTF", command=SoTF_Client)
 btn_TF.grid(row=0, column=2, sticky="nsew")
+"""//END"""
 
+def my_open():
+    w_child=Toplevel(window) # Child window 
+    w_child.geometry("200x200")  # Size of the window 
+    w_child.title("Synapse Software")
+
+    AC_Client.Innit()
+
+    h = threading.Thread(target=AC_Client.infHealth(), args=[])
+    health = tk.Button(w_child, text='Infinite Health', command=w_child.destroy)
+    health.grid(row=1, column=2)
+
+    b3 = tk.Button(w_child, text=' Close Child',
+                   command=w_child.destroy)
+    b3.grid(row=3,column=2)
 
 window.mainloop()
