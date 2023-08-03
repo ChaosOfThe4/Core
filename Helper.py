@@ -6,7 +6,7 @@ class ACVars:
     Armor = '0xFC'
     Grenades = '0x158'
     direction = '0x80'
-    movement = ['1', '255', '256', '65280']
+    movement = [1, 255, 256]
     xview = '0x40'
     yview = '0x44'
     PAmmo = '0x150'

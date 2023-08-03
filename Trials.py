@@ -110,7 +110,7 @@ def AC_Client():
 
             ##READ##
             local_Player1 = process_Main.memory.read(int.from_bytes(local_Player, "little") + unhex(ACVars.healthP), 0x04)
-            print(int.from_bytes(local_Player1, "little"))
+            #print(int.from_bytes(local_Player1, "little"))
 
             ##WRITE##
             integer_val = 1100000000 #int
@@ -120,7 +120,7 @@ def AC_Client():
 
             ###PRIMARY WEAPON AMMO###
             Ammo = process_Main.memory.read(int.from_bytes(local_Player, "little") + unhex(ACVars.PAmmo), 0x04)
-            print(int.from_bytes(Ammo, "little"))
+            #print(int.from_bytes(Ammo, "little"))
 
             integer_val1 = 999 #int
             bytes_val1 = integer_val1.to_bytes(4, 'little') #int to proper bytes for memory
@@ -130,7 +130,7 @@ def AC_Client():
 
             ###SECONDAY WEAPON AMMO###
             SAmmo = process_Main.memory.read(int.from_bytes(local_Player, "little") + unhex(ACVars.SAmmo), 0x04)
-            print(int.from_bytes(SAmmo, "little"))
+            #print(int.from_bytes(SAmmo, "little"))
 
             process_Main.memory.write(int.from_bytes(local_Player, "little") + unhex(ACVars.SAmmo), bytes_val1)#writing to memory
 
@@ -140,7 +140,7 @@ def AC_Client():
             ###ARMOR###
 
             Armor = process_Main.memory.read(int.from_bytes(local_Player, "little") + unhex(ACVars.Armor), 0x04)
-            print(int.from_bytes(Armor, "little"))
+            #print(int.from_bytes(Armor, "little"))
 
             process_Main.memory.write(int.from_bytes(local_Player, "little") + unhex(ACVars.Armor), bytes_val1)#writing to memory
 
@@ -148,19 +148,25 @@ def AC_Client():
 
             ###GRENADES###
             Grenades = process_Main.memory.read(int.from_bytes(local_Player, "little") + unhex(ACVars.Grenades), 0x04)
-            print(int.from_bytes(Grenades, "little"))
+            #print(int.from_bytes(Grenades, "little"))
 
             process_Main.memory.write(int.from_bytes(local_Player, "little") + unhex(ACVars.Grenades), bytes_val1)#writing to memory
 
 
             ###SPEEDHACK###
-            new_speed = 2.0
             Speed = process_Main.memory.read(int.from_bytes(local_Player, "little") + unhex(ACVars.direction), 0x04)
             print(int.from_bytes(Speed, "little"))
 
-            if any(ACVars.movement) == Speed:
-                new_speed = Speed * new_speed
+            #for x in ACVars.movement:
+
+                #if x == int.from_bytes(Speed, "little") and x != :
+            if int.from_bytes(Speed, "little") == 1:
+                new_speed = int((int.from_bytes(Speed, "little") * 2.5))
+                print(new_speed)
+                new_speed = new_speed.to_bytes(4, 'little')
                 process_Main.memory.write(int.from_bytes(local_Player, "little") + unhex(ACVars.direction), new_speed)#writing to memory
+            Speed = process_Main.memory.read(int.from_bytes(local_Player, "little") + unhex(ACVars.direction), 0x04)
+            print(int.from_bytes(Speed, "little"))
      
             time.sleep(0.05)
         except KeyboardInterrupt:
