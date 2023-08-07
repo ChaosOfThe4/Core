@@ -12,6 +12,15 @@ from Helper import (
     ACVars, CSVars, TFVars,
 )
 
+global vmm,process_Main
+features = {
+'infHealth' : False,
+'infAmmo' : False,
+'infArmor' : False,
+'infGrenades' : False,
+'speedHack' : False,
+}
+
 def FindDMAAddy(vHandle, base, offsets, arch = 64):
     size = 8
     if (arch == 32): size = 4
@@ -32,7 +41,11 @@ def FindDMAAddy(vHandle, base, offsets, arch = 64):
 def  unhex(h3x):
     return int(str(h3x), 16)
 
-global vmm,process_Main
+def check(features, feat):
+    if feat in features.feats():
+        active = features[feat]
+    return active
+
  
 
 
@@ -74,13 +87,12 @@ def print_menu():
     return vmm, process_Main"""
 
 class AC_Client:
-    def __init__(self, integer_val, integer_val1, bytes_val, bytes_val1):#, age):
-        #self.inUse = boolean
-        self.integer_val = 1100000000 #int
-        self.integer_val1 = 999 #int
-        self.bytes_val = self.integer_val.to_bytes(4, 'little') #int to proper bytes for memory
-        self.bytes_val1 = self.integer_val1.to_bytes(4, 'little') #int to proper bytes for memory
-        #self.age = age
+        #inUse = boolean
+    integer_val = 1100000000 #int
+    integer_val1 = 999 #int
+    bytes_val = integer_val.to_bytes(4, 'little') #int to proper bytes for memory
+    bytes_val1 = integer_val1.to_bytes(4, 'little') #int to proper bytes for memory
+        #age = age
     
     def Innit():   
         base = {}
@@ -105,78 +117,93 @@ class AC_Client:
 
                     print("\t" + each + ":" + str(base[each]))
         
+
+    def local_Player()
         local_Player = process_Main.memory.read(base["ac_client.exe"] + unhex(ACVars.LocalP), 0x04)# +  unhex(ACVars.healthO), 0x04)
         return local_Player
 
-    def infHealth(self):
-        while True:
+    def infHealth():
+        feature = 'infHealth'
+        on = check(features, feature)
+        while on:
             try:
             ###LOCAL PLAYER HEALTH###
                 ##READ##
-                local_Player1 = process_Main.memory.read(int.from_bytes(self.local_Player, "little") + unhex(ACVars.healthP), 0x04)
+                local_Player1 = process_Main.memory.read(int.from_bytes(local_Player, "little") + unhex(ACVars.healthP), 0x04)
                 print(int.from_bytes(local_Player1, "little"))
 
                 ##WRITE##
                 
-                process_Main.memory.write(int.from_bytes(self.local_Player, "little") + unhex(ACVars.healthP), self.bytes_val)#writing to memory
+                process_Main.memory.write(int.from_bytes(local_Player, "little") + unhex(ACVars.healthP), bytes_val)#writing to memory
             except KeyboardInterrupt:
                 sys.exit("Bye")
             except UnicodeDecodeError:
                 pass
 
-    def infAmmo(self):
+    def infAmmo():
+        feature = 'infAmmo'
         while True:
             try:
                 ###PRIMARY WEAPON AMMO###
-                Ammo = process_Main.memory.read(int.from_bytes(self.local_Player, "little") + unhex(ACVars.PAmmo), 0x04)
+                Ammo = process_Main.memory.read(int.from_bytes(local_Player, "little") + unhex(ACVars.PAmmo), 0x04)
                 print(int.from_bytes(Ammo, "little"))
 
-                bytes_val1 = self.integer_val1.to_bytes(4, 'little') #int to proper bytes for memory
-                process_Main.memory.write(int.from_bytes(self.local_Player, "little") + unhex(ACVars.PAmmo), bytes_val1)#writing to memory
+                bytes_val1 = integer_val1.to_bytes(4, 'little') #int to proper bytes for memory
+                process_Main.memory.write(int.from_bytes(local_Player, "little") + unhex(ACVars.PAmmo), bytes_val1)#writing to memory
 
 
                 ###SECONDAY WEAPON AMMO###
-                SAmmo = process_Main.memory.read(int.from_bytes(self.local_Player, "little") + unhex(ACVars.SAmmo), 0x04)
+                SAmmo = process_Main.memory.read(int.from_bytes(local_Player, "little") + unhex(ACVars.SAmmo), 0x04)
                 print(int.from_bytes(SAmmo, "little"))
 
-                process_Main.memory.write(int.from_bytes(self.local_Player, "little") + unhex(ACVars.SAmmo), bytes_val1)#writing to memory
+                process_Main.memory.write(int.from_bytes(local_Player, "little") + unhex(ACVars.SAmmo), bytes_val1)#writing to memory
             except KeyboardInterrupt:
                 sys.exit("Bye")
             except UnicodeDecodeError:
                 pass
 
-    def infArmor(self):
+    def infArmor():
+        eature = 'infArmor'
         while True:
             try:
                 ###ARMOR###
-                Armor = process_Main.memory.read(int.from_bytes(self.local_Player, "little") + unhex(ACVars.Armor), 0x04)
+                Armor = process_Main.memory.read(int.from_bytes(local_Player, "little") + unhex(ACVars.Armor), 0x04)
                 print(int.from_bytes(Armor, "little"))
 
-                process_Main.memory.write(int.from_bytes(self.local_Player, "little") + unhex(ACVars.Armor), self.bytes_val1)#writing to memory
+                process_Main.memory.write(int.from_bytes(local_Player, "little") + unhex(ACVars.Armor), bytes_val1)#writing to memory
             except KeyboardInterrupt:
                 sys.exit("Bye")
             except UnicodeDecodeError:
                 pass
 
-    def infGrenades(self):
+    def infGrenades():
+        feature = 'infGrenades'
         while True:
             try:
 
                 ###GRENADES###
-                Grenades = process_Main.memory.read(int.from_bytes(self.local_Player, "little") + unhex(ACVars.Grenades), 0x04)
+                Grenades = process_Main.memory.read(int.from_bytes(local_Player, "little") + unhex(ACVars.Grenades), 0x04)
                 print(int.from_bytes(Grenades, "little"))
 
-                process_Main.memory.write(int.from_bytes(self.local_Player, "little") + unhex(ACVars.Grenades), self.bytes_val1)#writing to memory
+                process_Main.memory.write(int.from_bytes(local_Player, "little") + unhex(ACVars.Grenades), bytes_val1)#writing to memory
+            except KeyboardInterrupt:
+                sys.exit("Bye")
+            except UnicodeDecodeError:
+                pass
 
 
+    def speedHack():
+        feature = 'speedHack'
+        while True:
+            try:
                 ###SPEEDHACK###
                 new_speed = 2.0
-                Speed = process_Main.memory.read(int.from_bytes(self.local_Player, "little") + unhex(ACVars.direction), 0x04)
+                Speed = process_Main.memory.read(int.from_bytes(local_Player, "little") + unhex(ACVars.direction), 0x04)
                 print(int.from_bytes(Speed, "little"))
 
                 if any(ACVars.movement) == Speed:
                     new_speed = Speed * new_speed
-                    process_Main.memory.write(int.from_bytes(self.local_Player, "little") + unhex(ACVars.direction), new_speed)#writing to memory
+                    process_Main.memory.write(int.from_bytes(local_Player, "little") + unhex(ACVars.direction), new_speed)#writing to memory
      
                 time.sleep(0.05)
             except KeyboardInterrupt:
@@ -341,8 +368,8 @@ def my_open():
 
     AC_Client.Innit()
 
-    h = threading.Thread(target=AC_Client.infHealth(), args=[])
-    health = tk.Button(w_child, text='Infinite Health', command=w_child.destroy)
+    h = threading.Thread(target=AC_Client.infHealth, args=[])
+    health = tk.Button(w_child, text='Infinite Health', command=h.run)
     health.grid(row=1, column=2)
 
     b3 = tk.Button(w_child, text=' Close Child',
