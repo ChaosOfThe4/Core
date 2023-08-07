@@ -13,16 +13,15 @@ from Helper import (
     ACVars, CSVars, TFVars,
 )
 
-global vmm,base,process_Main,local_Player,integer_val,integer_val1,bytes_val,bytes_val1
-maxconnections = 5
-features = {
-'infHealth' : False,
-'infAmmo' : False,
-'infArmor' : False,
-'infGrenades' : False,
-'speedHack' : False,
-}
+global vmm,base,process_Main,local_Player,integer_val,integer_val1,bytes_val,bytes_val1, feature2
 
+feature2 = {
+    'infHealth' : False,
+    'infAmmo' : False,
+    'infArmor' : False,
+    'infGrenades' : False,
+    'speedHack' : False,
+}
 
 def FindDMAAddy(vHandle, base, offsets, arch = 64):
     size = 8
@@ -45,17 +44,20 @@ def  unhex(h3x):
     return int(str(h3x), 16)
 
 def check(features, feat):
-    if feat in features.feats():
-        active = features[feat]
-    return active
+    for x,y in features.items():
+        if x == feat:
+            return y
+
 ###Need to make function check game to get right class then each feature set from each class
 
 def runner(features, feat, game):
-    is_On = check(features, feat)
-    if (not is_On):
-        features.update({str(feat): not is_On})
-        with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
-            executor.map(thread_function, range(3))
+    for x,y in game.items():
+        if x == game:
+            is_On = check(y.features, feat)
+        if (not is_On):
+            features.update({str(feat): not is_On})
+            h = threading.Thread(target=y.feat, args=[], daemon=True)
+            h.run()
 
 """def manager(features):
     for x, y in features.items():
@@ -108,6 +110,7 @@ class AC_Client:
     bytes_val1 = integer_val1.to_bytes(4, 'little') #int to proper bytes for memory
         #age = age
 
+
     def Innit():   
         base = {}
 
@@ -138,7 +141,7 @@ class AC_Client:
 
     def infHealth():
         feature = 'infHealth'
-        on = check(features, feature)
+        on = check(feature2, feature)
         while on:
             try:
             ###LOCAL PLAYER HEALTH###
@@ -149,7 +152,7 @@ class AC_Client:
                 ##WRITE##
                 
                 process_Main.memory.write(int.from_bytes(local_Player, "little") + unhex(ACVars.healthP), bytes_val)#writing to memory
-                on = check(features, feature)
+                on = check(feature2, feature)
             except KeyboardInterrupt:
                 sys.exit("Bye")
             except UnicodeDecodeError:
@@ -157,7 +160,7 @@ class AC_Client:
 
     def infAmmo():
         feature = 'infAmmo'
-        on = check(features, feature)
+        on = check(feature2, feature)
         while on:
             try:
                 ###PRIMARY WEAPON AMMO###
@@ -173,7 +176,7 @@ class AC_Client:
                 print(int.from_bytes(SAmmo, "little"))
 
                 process_Main.memory.write(int.from_bytes(local_Player, "little") + unhex(ACVars.SAmmo), bytes_val1)#writing to memory
-                on = check(features, feature)
+                on = check(feature2, feature)
             except KeyboardInterrupt:
                 sys.exit("Bye")
             except UnicodeDecodeError:
@@ -181,7 +184,7 @@ class AC_Client:
 
     def infArmor():
         feature = 'infArmor'
-        on = check(features, feature)
+        on = check(feature2, feature)
         while on:
             try:
                 ###ARMOR###
@@ -189,7 +192,7 @@ class AC_Client:
                 print(int.from_bytes(Armor, "little"))
 
                 process_Main.memory.write(int.from_bytes(local_Player, "little") + unhex(ACVars.Armor), bytes_val1)#writing to memory
-                on = check(features, feature)
+                on = check(feature2, feature)
             except KeyboardInterrupt:
                 sys.exit("Bye")
             except UnicodeDecodeError:
@@ -197,7 +200,7 @@ class AC_Client:
 
     def infGrenades():
         feature = 'infGrenades'
-        on = check(features, feature)
+        on = check(feature2, feature)
         while on:
             try:
 
@@ -206,7 +209,7 @@ class AC_Client:
                 print(int.from_bytes(Grenades, "little"))
 
                 process_Main.memory.write(int.from_bytes(local_Player, "little") + unhex(ACVars.Grenades), bytes_val1)#writing to memory
-                on = check(features, feature)
+                on = check(feature2, feature)
             except KeyboardInterrupt:
                 sys.exit("Bye")
             except UnicodeDecodeError:
@@ -215,7 +218,7 @@ class AC_Client:
 
     def speedHack():
         feature = 'speedHack'
-        on = check(features, feature)
+        on = check(feature2, feature)
         while True:
             try:
                 ###SPEEDHACK###
@@ -228,18 +231,18 @@ class AC_Client:
                     process_Main.memory.write(int.from_bytes(local_Player, "little") + unhex(ACVars.direction), new_speed)#writing to memory
      
                 time.sleep(0.05)
-                on = check(features, feature)
+                on = check(feature2, feature)
             except KeyboardInterrupt:
                 sys.exit("Bye")
             except UnicodeDecodeError:
                 pass
 
     featFuncs = {
-'infHealth' : infHealth(),
-'infAmmo' : infAmmo(),
-'infArmor' : infArmor(),
-'infGrenades' : infGrenades(),
-'speedHack' : speedHack(),
+    'infHealth' : infHealth(),
+    'infAmmo' : infAmmo(),
+    'infArmor' : infArmor(),
+    'infGrenades' : infGrenades(),
+    #'speedHack' : speedHack(),
     }
 
 def timet():
@@ -373,6 +376,11 @@ def SoTF_Client():
             pass
 
         time.sleep(.05)
+
+games = {
+'ac_client' : AC_Client(),
+#'csgo' : CSGO_Client(),
+}
      
 window = tk.Tk()
 window.title("Synapse Software")
