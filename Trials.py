@@ -7,12 +7,14 @@ import memprocfs
 import threading 
 import tkinter as tk
 from tkinter import *
+import concurrent.futures
 
 from Helper import (
     ACVars, CSVars, TFVars,
 )
 
 global vmm,base,process_Main,local_Player,integer_val,integer_val1,bytes_val,bytes_val1
+maxconnections = 5
 features = {
 'infHealth' : False,
 'infAmmo' : False,
@@ -20,6 +22,7 @@ features = {
 'infGrenades' : False,
 'speedHack' : False,
 }
+
 
 def FindDMAAddy(vHandle, base, offsets, arch = 64):
     size = 8
@@ -45,11 +48,19 @@ def check(features, feat):
     if feat in features.feats():
         active = features[feat]
     return active
+###Need to make function check game to get right class then each feature set from each class
 
-def runner(features, feat):
+def runner(features, feat, game):
     is_On = check(features, feat)
     if (not is_On):
         features.update({str(feat): not is_On})
+        with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
+            executor.map(thread_function, range(3))
+
+"""def manager(features):
+    for x, y in features.items():
+        if (y):"""
+            
 
 
 menu_options = {
@@ -96,7 +107,7 @@ class AC_Client:
     bytes_val = integer_val.to_bytes(4, 'little') #int to proper bytes for memory
     bytes_val1 = integer_val1.to_bytes(4, 'little') #int to proper bytes for memory
         #age = age
-    
+
     def Innit():   
         base = {}
 
@@ -147,7 +158,7 @@ class AC_Client:
     def infAmmo():
         feature = 'infAmmo'
         on = check(features, feature)
-        while True:
+        while on:
             try:
                 ###PRIMARY WEAPON AMMO###
                 Ammo = process_Main.memory.read(int.from_bytes(local_Player, "little") + unhex(ACVars.PAmmo), 0x04)
@@ -171,7 +182,7 @@ class AC_Client:
     def infArmor():
         feature = 'infArmor'
         on = check(features, feature)
-        while True:
+        while on:
             try:
                 ###ARMOR###
                 Armor = process_Main.memory.read(int.from_bytes(local_Player, "little") + unhex(ACVars.Armor), 0x04)
@@ -187,7 +198,7 @@ class AC_Client:
     def infGrenades():
         feature = 'infGrenades'
         on = check(features, feature)
-        while True:
+        while on:
             try:
 
                 ###GRENADES###
@@ -223,7 +234,13 @@ class AC_Client:
             except UnicodeDecodeError:
                 pass
 
-            time.sleep(.05)
+    featFuncs = {
+'infHealth' : infHealth(),
+'infAmmo' : infAmmo(),
+'infArmor' : infArmor(),
+'infGrenades' : infGrenades(),
+'speedHack' : speedHack(),
+    }
 
 def timet():
     return time.perf_counter_ns()
@@ -379,14 +396,16 @@ def my_open():
     w_child.title("Synapse Software")
 
     AC_Client.Innit()
+    AC_Client.local_Player()
 
-    #h = threading.Thread(target=AC_Client.infHealth, args=[])
-    #h.run()
-    health = tk.Button(w_child, text='Infinite Health', command=runner('infHealth'))
+    health = tk.Button(w_child, text='Infinite Health', command=runner('infHealth', "ac_client"))
     health.grid(row=1, column=2)
 
     b3 = tk.Button(w_child, text=' Close Child',
                    command=w_child.destroy)
     b3.grid(row=3,column=2)
+
+    #h = threading.Thread(target=manager, args=[])
+    #h.run()
 
 window.mainloop()
